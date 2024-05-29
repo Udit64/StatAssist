@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StatAssist - Results</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+
+        h1, h2 {
+            color: #34495e;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 50px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #5dade2;
+            color: #ffffff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e8f4f8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Statistical Analysis Results</h1>
+    <h2>Appropriate Statistical Test: {{ stat_test }}</h2>
+    
+    
+    <script>
+        // Parse JSON data from Flask variable
+        var statsInfo = JSON.parse('{{ stats_info | safe }}');
+        var statsInfoHTML = '<table>';
+        // Iterate over each key-value pair in the JSON object and create table rows
+        Object.keys(statsInfo).forEach(function(key) {
+            statsInfoHTML += '<tr><td>' + key + '</td><td>' + statsInfo[key] + '</td></tr>';
+        });
+        statsInfoHTML += '</table>';
+        // Update the HTML content of the 'stats-info' div with the formatted statistical information
+        document.getElementById('stats-info').innerHTML = statsInfoHTML;
+    </script>
+</body>
+</html>

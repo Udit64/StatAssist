@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatAssist</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+        }
+
+        header {
+            background-color: #110733;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #5dade2;
+            color: #ffffff;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fbf7f7;
+            border-radius: 10px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            border: 1px solid #ddd;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        input[type="file"], input[type="submit"], select {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: all 0.3s;
+        }
+
+        input[type="submit"] {
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+        }
+
+        .question {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>StatAssist: Your Data Analysis Partner</h1>
+    </header>
+    
+    
+    <div class="container">
+        <form id="csv_upload_form" action="/analyze" method="post" enctype="multipart/form-data">
+            <input type="file" name="csv_file" accept=".csv">
+            <input type="submit" value="Upload CSV">
+        </form>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="container">
+        <form id="question_form" action="/process" method="POST">
+            {% for question_id, question_data in questions_options.items() %}
+                <div id="question_{{ question_id }}" {% if not loop.first %}style="display: none;"{% endif %}>
+                    <input type="hidden" name="question_id" value="{{ question_id }}">
+                    <p>{{ question_data['question'] }}</p>
+                    <select name="response">
+                        {% for option in question_data['options'] %}
+                            <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    {% if not loop.last %}
+                        <button type="button" onclick="showNextQuestion('question_{{ question_id }}')">Next</button>
+                    {% else %}
+                        <input type="submit" value="Submit">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </form>
+    </div>
+
+    <footer>
+        &copy; 2024 StatAssist. All rights reserved.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('csv_upload_form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Stop the regular form submission
+
+        var formData = new FormData(this);
+        fetch('/analyze', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if(response.ok) {
+                return response.json(); // or response.text() if the response is not in JSON
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            console.log('Success:', data);
+            // Handle success. You can display a message or update the DOM accordingly.
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors here, such as displaying a notification to the user.
+        });
+    });
+});
+
+        document.querySelector('form[action="/analyze"]').addEventListener('submit', function(e) {
+            var fileInput = this.querySelector('input[type="file"]');
+            if(fileInput.files.length === 0) {
+                e.preventDefault(); // Prevent the form from submitting
+                alert('Please select a file before submitting.');
+            }
+        });
+
+        function showNextQuestion(currentId) {
+    var currentQuestion = document.getElementById(currentId);
+    var selectedOption = currentQuestion.querySelector('select[name="response"]').value;
+    var questionId = currentQuestion.querySelector('input[name="question_id"]').value;
+
+    // Fetch logic for updating responses
+    fetch(`/update_response?question_id=${questionId}&response=${encodeURIComponent(selectedOption)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Check if there's a next question
+                if (data.next_question_id) {
+                    // Hide current question
+                    currentQuestion.style.display = "none";
+                    // Based on the next_question_id, find and display the next question
+                    var nextQuestionId = data.next_question_id;
+                    var nextQuestion = document.getElementById("question_" + nextQuestionId);
+                    if (nextQuestion) {
+                        nextQuestion.style.display = "block";
+                        document.getElementById("question_id").value = nextQuestionId;
+                    }
+                } else {
+                    // If there is no next question, redirect to the results page
+                    window.location.href = '/result';
+                }
+            } else {
+                alert('There was an error processing your response. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+
+
+    </script>
+</body>
