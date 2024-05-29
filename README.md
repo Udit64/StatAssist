@@ -25,24 +25,37 @@ Frontend: HTML, CSS and Javascript
 Backend: Flask framework (python)
 Dependencies:
 ● pandas: A powerful data manipulation library for Python.
+
 ● numpy: A fundamental package for scientific computing with Python.
+
 ● scipy: A library used for scientific and technical computing.
+
 ● Flask: A lightweight WSGI web application framework for Python.
+
 ● Flask: The main Flask module.
+
 ● render_template: A function for rendering Jinja2 templates.
+
 ● request: An object representing the current request.
+
 ● redirect: A function for performing HTTP redirects.
+
 ● url_for: A function for generating URLs for Flask routes.
+
 ● session: A session object for storing user data across requests.
+
 ● jsonify: A function for creating a JSON response.
-● seaborn: A Python visualization library based on matplotlib, providing a high-level
-interface for drawing attractive statistical graphics.
-● matplotlib.pyplot: A plotting library for creating static, animated, and interactive
-visualizations in Python.
+
+● seaborn: A Python visualization library based on matplotlib, providing a high-level interface for drawing attractive statistical graphics.
+
+● matplotlib.pyplot: A plotting library for creating static, animated, and interactive visualizations in Python.
 ● io: A module providing Python's main facilities for dealing with various types of I/O.
+
 ● base64: A module providing functions for encoding and decoding data using Base64
 encoding.
+
 Note: Make sure to install these dependencies using pip before running the code.
+
 3.2 Setting-up the Web Application
 After installing all the previously mentioned modules, execute the following command:
 python app.py
